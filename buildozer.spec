@@ -9,7 +9,7 @@
 title = قوافل مرسال
 
 # (str) Package name
-package.name = mersal convoy
+package.name = mersalconvoy
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
@@ -42,7 +42,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy
+requirements = python3,kivy,requests,arabic-reshaper
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -109,10 +109,10 @@ android.permissions = android.permission.INTERNET, android.permission.READ_EXTER
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-#android.api = 33
+android.api = 33
 
 # (int) Minimum API your APK / AAB will support.
-#android.minapi = 24
+android.minapi = 21
 
 # (int) Android SDK version to use
 #android.sdk = 20
