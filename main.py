@@ -1,10 +1,7 @@
 # يجب تثبيت المكتبات التالية ليعمل هذا الكود:
 # pip install kivy kivymd arabic-reshaper python-bidi
 
-from kivy.config import Config
-# محاكاة حجم شاشة الموبايل أثناء الاختبار على الكمبيوتر
-Config.set('graphics', 'width', '360')
-Config.set('graphics', 'height', '640')
+# تم حذف أكواد Config الخاصة بتحديد حجم الشاشة لأنها تسبب Crash على الموبايل
 
 from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
@@ -18,8 +15,6 @@ from kivy.metrics import dp
 import arabic_reshaper
 from bidi.algorithm import get_display
 
-# --- إعداد الخط العربي ---
-# ضع اسم ملف الخط الذي ستقوم بتحميله هنا
 ARABIC_FONT = "Cairo-Bold.ttf" 
 
 def render_arabic(text):
@@ -45,7 +40,6 @@ class ConvoyApp(MDApp):
             adaptive_height=True
         )
 
-        # 1. عنوان التطبيق (تم إضافة font_name)
         title_label = MDLabel(
             text=render_arabic("تطبيق القافلة (Convoy)"),
             halign="center",
@@ -53,10 +47,9 @@ class ConvoyApp(MDApp):
             font_style="H4",
             size_hint_y=None,
             height=dp(50),
-            font_name=ARABIC_FONT  # ربط الخط
+            font_name=ARABIC_FONT  
         )
 
-        # 2. حقل إدخال رقم الهاتف (تم إضافة font_name_hint_text و font_name)
         self.phone_input = MDTextField(
             hint_text=render_arabic("رقم الهاتف"),
             icon_right="phone",
@@ -64,10 +57,9 @@ class ConvoyApp(MDApp):
             size_hint_x=1,
             input_filter="int",
             font_name=ARABIC_FONT,
-            font_name_hint_text=ARABIC_FONT # لضمان ظهور النص الإرشادي بشكل صحيح
+            font_name_hint_text=ARABIC_FONT 
         )
 
-        # 3. حقل إدخال كلمة المرور
         self.password_input = MDTextField(
             hint_text=render_arabic("كلمة المرور"),
             icon_right="eye-off",
@@ -78,13 +70,12 @@ class ConvoyApp(MDApp):
             font_name_hint_text=ARABIC_FONT
         )
 
-        # 4. زر الدخول (تم إضافة font_name)
         login_button = MDRaisedButton(
             text=render_arabic("تسجيل الدخول"),
             pos_hint={"center_x": 0.5},
             size_hint_x=1,
             height=dp(50),
-            font_name=ARABIC_FONT, # ربط الخط
+            font_name=ARABIC_FONT, 
             on_release=self.on_login_click
         )
 
