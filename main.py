@@ -1,5 +1,5 @@
 import arabic_reshaper
-from bidi.algorithm import get_display
+from pybidi.algorithm import get_display
 import os
 import time
 import threading
@@ -184,7 +184,7 @@ class LoginScreen(Screen):
             
             huge_data_list = []
             # توليد 5000 سجل بيانات كمثال للتجربة
-            for i in range(1, 5001):
+            for i in range(1, 500):
                 # نطبق اللغة العربية هنا قبل إرسالها للـ RecycleView لضمان الأداء
                 huge_data_list.append({
                     "title": render_arabic(f"سجل شحنة رقم #{i}"),
