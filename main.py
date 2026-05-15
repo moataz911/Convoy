@@ -25,7 +25,7 @@ from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.core.text import LabelBase
-from kivy.metrics import sp
+from kivy.metrics import sp, dp
 from kivy.clock import Clock
 from ftplib import FTP
 import io
@@ -230,7 +230,7 @@ class ContactRow(RecycleDataViewBehavior, BoxLayout):
         self.info_label.text = data.get('display_text', '')
         self._build_checkboxes(data)
         return super().refresh_view_attrs(rv, index, data)
-
+        
     def _build_checkboxes(self, data):
         self.check_container.clear_widgets()
         fields = data.get('fields', [])
@@ -326,11 +326,12 @@ class ContactsApp(App):
         root.add_widget(settings_bar)
 
         # شريط البحث
-        search_bar = BoxLayout(size_hint_y=None, height=48, spacing=5)
+        search_bar = BoxLayout(size_hint_y=None, height=50, spacing=5)
         self.search_input = TextInput(
             hint_text=fix_arabic("ابحث عن اسم..."),
             font_name=ARABIC_FONT, font_size=int(sp(14)),
-            multiline=False, size_hint_x=0.85, padding=[10, 12, 10, 12]
+            multiline=False, size_hint_x=0.85,
+            padding=[dp(8), dp(8), dp(8), dp(8)]
         )
         self.search_input.bind(text=self.on_search_text)
         clear_btn = Button(
@@ -343,9 +344,9 @@ class ContactsApp(App):
         root.add_widget(search_bar)
 
         # منطقة الإدخال
-        input_bar = BoxLayout(size_hint_y=None, height=56, spacing=5)
+        input_bar = BoxLayout(size_hint_y=None, height=50, spacing=5)
         inp_kwargs = dict(multiline=False, font_name=ARABIC_FONT,
-                         font_size=int(sp(14)), padding=[10, 12, 10, 12],
+                         font_size=int(sp(14)), padding=[dp(8), dp(8), dp(8), dp(8)],
                          size_hint_y=1, write_tab=False)
         self.name_input = TextInput(hint_text=fix_arabic("الاسم"), size_hint_x=0.35, **inp_kwargs)
         self.age_input  = TextInput(hint_text=fix_arabic("السن"), input_filter='int', size_hint_x=0.15, **inp_kwargs)
@@ -449,8 +450,8 @@ class ContactsApp(App):
             idx = checkbox.contact_idx
             self.contacts_data[idx][checkbox.field_idx] = checkbox.field_name if value else ""
             save_data(self.contacts_data, self.config_data)
-            status = fix_arabic("✓ تم التحديث") if value else fix_arabic("تم الإلغاء")
-            self.status_label.text = f"{self.contacts_data[idx][0]}: {checkbox.field_name} - {status}"
+            status = fix_arabic("تم التحديث") if value else fix_arabic("تم الالغاء")
+            self.status_label.text = fix_arabic(f"{self.contacts_data[idx][0]}: {checkbox.field_name} - {status}")
         except Exception as e:
             print(f"Checkbox error: {e}")
 
@@ -463,7 +464,7 @@ class ContactsApp(App):
             self.contacts_data.append([name, age, phone] + [""] * len(self.checkbox_fields))
             save_data(self.contacts_data, self.config_data,
                       on_done=lambda ok: setattr(self.status_label, 'text',
-                                                  fix_arabic(f"✓ تمت إضافة: {name}")))
+                                                  fix_arabic(f"تمت الاضافة: {name}")))
             self.name_input.text = self.age_input.text = self.phone_input.text = ""
             self.search_input.text = ""
             self.search_active = False
@@ -524,16 +525,16 @@ class ContactsApp(App):
             self._refresh_list()
             self.storage_label.text = fix_arabic(self._storage_info())
             self._update_storage_btns()
-            self.status_label.text = fix_arabic("✓ تم تفعيل التخزين المحلي")
+            self.status_label.text = fix_arabic("تم تفعيل التخزين المحلي")
             popup.dismiss()
 
         def test(_):
             d = inputs["local_directory"].text.strip()
             try:
                 os.makedirs(d, exist_ok=True)
-                self.status_label.text = fix_arabic("✓ المجلد صحيح")
+                self.status_label.text = fix_arabic("المجلد صحيح")
             except Exception as e:
-                self.status_label.text = fix_arabic(f"✗ خطأ: {e}")
+                self.status_label.text = fix_arabic(f"خطأ: {e}")
 
         ok_btn.bind(on_press=activate)
         tst_btn.bind(on_press=test)
@@ -589,7 +590,7 @@ class ContactsApp(App):
             self._refresh_list()
             self.storage_label.text = fix_arabic(self._storage_info())
             self._update_storage_btns()
-            self.status_label.text = fix_arabic("✓ تم تفعيل FTP")
+            self.status_label.text = fix_arabic("تم تفعيل FTP")
             popup.dismiss()
 
         def test(_):
@@ -599,9 +600,9 @@ class ContactsApp(App):
                 ftp.login(inputs["ftp_user"].text.strip(), inputs["ftp_password"].text.strip())
                 ftp.cwd(inputs["ftp_directory"].text.strip())
                 ftp.quit()
-                self.status_label.text = fix_arabic("✓ اتصال FTP ناجح")
+                self.status_label.text = fix_arabic("اتصال FTP ناجح")
             except Exception as e:
-                self.status_label.text = fix_arabic(f"✗ خطأ: {e}")
+                self.status_label.text = fix_arabic(f"خطأ FTP: {e}")
 
         ok_btn.bind(on_press=activate)
         tst_btn.bind(on_press=test)
@@ -656,7 +657,7 @@ class ContactsApp(App):
                 save_data(self.contacts_data, self.config_data)
                 new_input.text = ""
                 self.fields_label.text = fix_arabic(f"الحقول: {', '.join(self.checkbox_fields)}")
-                self.status_label.text = fix_arabic(f"✓ تم إضافة: {name}")
+                self.status_label.text = fix_arabic(f"تم اضافة: {name}")
                 self._refresh_list()
 
         def save_fields(_):
