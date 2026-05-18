@@ -1,13 +1,13 @@
 [app]
 
 # عنوان التطبيق كما يظهر على الجهاز
-title = مدير جهات الاتصال
+title = قوافل مرسال
 
 # اسم الحزمة (أحرف إنجليزية صغيرة وأرقام فقط)
-package.name = ftpcontactmanager
+package.name = ftpconvoy
 
 # نطاق الحزمة (عكسي)
-package.domain = org.ftpcontacts
+package.domain = org.ftpconvoy
 
 # مجلد الكود المصدري (نفس مجلد buildozer.spec)
 source.dir = .
