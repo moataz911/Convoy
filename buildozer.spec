@@ -1,8 +1,8 @@
 [app]
 
-title = مدير جهات الاتصال
-package.name = ftpcontactmanager
-package.domain = org.ftpcontacts
+title = مدير قوافل مرسال
+package.name = ftpconvoy
+package.domain = org.ftpconvoy
 
 source.dir = .
 source.include_exts = py,png,jpg,jpeg,kv,atlas,json,ttf,csv,txt
