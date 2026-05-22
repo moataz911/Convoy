@@ -333,6 +333,16 @@ def parse_multi(value):
 def serialize_multi(selected):
     return "|".join(selected)
 
+def _rlbl(**kw):
+    """
+    ينشئ MDLabel مع ربط text_size بالعرض تلقائياً.
+    هذا ضروري لـ Kivy: بدون text_size لا يُطبَّق halign='right' فعلياً،
+    لأن النص بدونه يُعرض في مساحة بحجم النص نفسه فقط.
+    """
+    lbl = MDLabel(**kw)
+    lbl.bind(width=lambda inst, w: setattr(inst, 'text_size', (w, None)))
+    return lbl
+
 # ══════════════════════════════════════════════════════════════════
 #  FTP Manager
 # ══════════════════════════════════════════════════════════════════
@@ -492,7 +502,7 @@ class ContactApp(MDApp):
         def _show(dt):
             try:
                 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
-                MDSnackbar(MDSnackbarText(text=msg),
+                MDSnackbar(MDSnackbarText(text=msg, halign="right"),
                            y=dp(24), pos_hint={"center_x": .5},
                            size_hint_x=.92, duration=3).open()
             except (ImportError, TypeError):
@@ -609,7 +619,7 @@ class ContactApp(MDApp):
             lst.clear_widgets(); self._displayed = 0
         if not self.records:
             if not append:
-                lst.add_widget(MDLabel(
+                lst.add_widget(_rlbl(
                     text=ar("لا توجد سجلات"),
                     halign="center",
                     height=dp(70), size_hint_y=None))
@@ -629,7 +639,7 @@ class ContactApp(MDApp):
         row = MDBoxLayout(adaptive_height=True, spacing=dp(8))
 
         info = MDBoxLayout(orientation="vertical", adaptive_height=True)
-        info.add_widget(MDLabel(
+        info.add_widget(_rlbl(
             text=ar(rec.get("الاسم","") or "بدون اسم"),
             font_style="H6", adaptive_height=True, halign="right"))
 
@@ -637,7 +647,7 @@ class ContactApp(MDApp):
         if rec.get("السن"):        parts.append(ar(f"السن: {rec['السن']}"))
         if rec.get("رقم الهاتف"): parts.append(ar(f"الهاتف: {rec['رقم الهاتف']}"))
         if parts:
-            info.add_widget(MDLabel(
+            info.add_widget(_rlbl(
                 text="  |  ".join(parts),
                 font_style="Caption", theme_text_color="Secondary",
                 adaptive_height=True, halign="right"))
@@ -660,10 +670,10 @@ class ContactApp(MDApp):
             if not selected: continue
             chips_row = MDBoxLayout(adaptive_height=True,
                                     spacing=dp(4), padding=[0, dp(2)])
-            chips_row.add_widget(MDLabel(
+            chips_row.add_widget(_rlbl(
                 text=ar(f'{fd["name"]}: '),
-                font_style="Caption", adaptive_size=True,
-                theme_text_color="Secondary"))
+                font_style="Caption", adaptive_height=True,
+                theme_text_color="Secondary", halign="right"))
             for opt in selected:
                 try:
                     chips_row.add_widget(MDChip(text=ar(opt)))
@@ -703,7 +713,7 @@ class ContactApp(MDApp):
                             size_hint_y=None, height=dp(44))
             cb  = MDCheckbox(active=(current == "true"),
                              size_hint=(None, None), size=(dp(32), dp(32)))
-            lbl = MDLabel(text=ar(name), adaptive_height=True, halign="right")
+            lbl = _rlbl(text=ar(name), adaptive_height=True, halign="right")
             c.add_widget(cb); c.add_widget(lbl)
             c.checkbox   = cb
             c.field_type = "checkbox"
@@ -712,8 +722,8 @@ class ContactApp(MDApp):
         if ftype == "multiselect":
             c = MDBoxLayout(orientation="vertical", adaptive_height=True,
                             spacing=dp(6), padding=[0, dp(6)])
-            c.add_widget(MDLabel(text=ar(name), font_style="Subtitle1",
-                                 adaptive_height=True, halign="right"))
+            c.add_widget(_rlbl(text=ar(name), font_style="Subtitle1",
+                               adaptive_height=True, halign="right"))
             selected = parse_multi(current)
             opts     = fd.get("options", [])
             cb_map   = {}
