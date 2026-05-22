@@ -464,6 +464,28 @@ class ContactApp(MDApp):
         self._initial_load()
         Clock.schedule_interval(self._auto_sync,      15)
         Clock.schedule_interval(self._periodic_check, 10)
+        # إعداد اتجاه RTL لحقول الإدخال بعد تهيئة الشاشات
+        Clock.schedule_once(self._init_rtl_inputs, 0)
+
+    def _init_rtl_inputs(self, dt):
+        """
+        يضبط base_direction='rtl' + halign='right' لجميع حقول الإدخال العربية
+        المُعرَّفة في KV. نُعيد ضبط hint_text بالعربي الخام (بدون ar()) حتى
+        لا يتعارض مع base_direction ولا يحدث عكس مضاعف للنص.
+        """
+        rtl_fields = [
+            ("search",  "search_input",        "ابحث بالاسم أو أي معلومة..."),
+            ("fields",  "new_field_input",      "اسم الحقل الجديد"),
+            ("fields",  "field_options_input",  "خيارات: خيار1، خيار2"),
+        ]
+        for screen_name, field_id, raw_hint in rtl_fields:
+            try:
+                tf = self.root.get_screen(screen_name).ids[field_id]
+                tf.hint_text       = raw_hint   # عربي خام بدون ar()
+                tf.halign          = "right"
+                tf.base_direction  = "rtl"
+            except Exception as e:
+                print(f"[RTL] {field_id}: {e}")
 
     # ── app.ar() متاح من KV إن احتاجه أحد ────────────────────
     def ar(self, text):
@@ -581,10 +603,16 @@ class ContactApp(MDApp):
             direction="left" if name != "home" else "right")
         self.root.current = name
         if   name == "settings": self._load_settings_ui()
-        elif name == "fields":   self._refresh_fields_ui()
+        elif name == "fields":
+            self._refresh_fields_ui()
+            # أعِد ضبط RTL عند العودة لشاشة الحقول (قد تُعاد تهيئة الـ ids)
+            Clock.schedule_once(self._init_rtl_inputs, 0)
         elif name == "add":      self._build_add_form(); self._update_bars()
         elif name == "edit":     self._update_bars()
         elif name == "home":     self._displayed = 0; self._refresh_list()
+        elif name == "search":
+            # أعِد ضبط RTL عند فتح شاشة البحث
+            Clock.schedule_once(self._init_rtl_inputs, 0)
 
     # ── Initial load ───────────────────────────────────────────
     def _initial_load(self):
@@ -697,15 +725,15 @@ class ContactApp(MDApp):
         req   = ar(" (مطلوب)") if fd.get("required") else ""
 
         if ftype == "text":
-            tf = MDTextField(hint_text=ar(name) + req,
-                             mode="rectangle", text=current or "",
-                             halign="right")
+            tf = MDTextField(
+                hint_text=name + req,   # عربي خام بدون ar() — يتعامل معه base_direction="rtl"
+                mode="rectangle",
+                text=current or "",
+                halign="right",
+            )
             tf.field_type = "text"
-            # اتجاه RTL للكتابة العربية (متاح في Kivy 2.3+)
-            try:
-                tf.base_direction = "rtl"
-            except AttributeError:
-                pass
+            # نؤخّر base_direction إلى الـ frame التالي حتى تكتمل تهيئة الـ widget
+            Clock.schedule_once(lambda dt, w=tf: setattr(w, "base_direction", "rtl"), 0)
             return tf
 
         if ftype == "checkbox":
