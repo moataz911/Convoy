@@ -234,6 +234,7 @@ ScreenManager:
                 id: search_input
                 hint_text: "ابحث بالاسم أو أي معلومة..."
                 on_text: app.do_search(self.text)
+                halign: "right"
             MDScrollView:
                 MDList:
                     id: search_list
@@ -303,6 +304,7 @@ ScreenManager:
                     id: new_field_input
                     hint_text: "اسم الحقل الجديد"
                     size_hint_x: 0.5
+                    halign: "right"
                 MDTextField:
                     id: field_type_input
                     hint_text: "text / checkbox / multiselect"
@@ -313,6 +315,7 @@ ScreenManager:
                 MDTextField:
                     id: field_options_input
                     hint_text: "خيارات: خيار1، خيار2"
+                    halign: "right"
                 MDIconButton:
                     icon: "plus"
                     on_release: app.add_field()
@@ -417,7 +420,8 @@ class ContactApp(MDApp):
 
     def _register_arabic_fonts(self):
         """
-        يسجّل الخطوط العربية بعد تهيئة التطبيق كاملاً.
+        يسجّل الخطوط العربية لجميع متغيرات Roboto المستخدمة في KivyMD.
+        MDTopAppBar (H6) تستخدم "RobotoMedium" — يجب تسجيلها صراحةً.
         يستخدم self.directory لإيجاد الخطوط بشكل موثوق على Android و Desktop.
         """
         from kivy.resources import resource_add_path, resource_find
@@ -425,18 +429,18 @@ class ContactApp(MDApp):
         resource_add_path(self.directory)
         font_registered = False
         for font_file in ["Amiri-Regular.ttf", "Cairo-Bold.ttf"]:
-            # حاول أولاً عبر resource_find
             path = resource_find(font_file)
-            # بديل مباشر: ابحث في مجلد التطبيق
             if not path:
                 candidate = os.path.join(self.directory, font_file)
                 if os.path.exists(candidate):
                     path = candidate
             if path:
                 try:
-                    LabelBase.register(name="Roboto",  fn_regular=path, fn_bold=path)
-                    LabelBase.register(name="ArabicF", fn_regular=path, fn_bold=path)
-                    print(f"[Font] Arabic font registered: {path}")
+                    # سجّل لجميع متغيرات Roboto المستخدمة من KivyMD:
+                    # "RobotoMedium" مطلوب لعنوان MDTopAppBar (H6 style)
+                    for font_name in ["Roboto", "RobotoMedium", "RobotoBold", "RobotoLight", "ArabicF"]:
+                        LabelBase.register(name=font_name, fn_regular=path, fn_bold=path)
+                    print(f"[Font] All Roboto variants registered with Arabic font: {path}")
                     font_registered = True
                     break  # Amiri له الأولوية — نتوقف عند أول خط يُوجد
                 except Exception as e:
@@ -684,8 +688,14 @@ class ContactApp(MDApp):
 
         if ftype == "text":
             tf = MDTextField(hint_text=ar(name) + req,
-                             mode="rectangle", text=current or "")
+                             mode="rectangle", text=current or "",
+                             halign="right")
             tf.field_type = "text"
+            # اتجاه RTL للكتابة العربية (متاح في Kivy 2.3+)
+            try:
+                tf.base_direction = "rtl"
+            except AttributeError:
+                pass
             return tf
 
         if ftype == "checkbox":
