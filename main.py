@@ -481,7 +481,7 @@ class ContactApp(MDApp):
         for screen_name, field_id, raw_hint in rtl_fields:
             try:
                 tf = self.root.get_screen(screen_name).ids[field_id]
-                tf.hint_text       = raw_hint   # عربي خام بدون ar()
+                tf.hint_text       = ar(raw_hint)  # ar() مطلوب — base_direction لا يعمل مع SDL2
                 tf.halign          = "right"
                 tf.base_direction  = "rtl"
             except Exception as e:
@@ -722,11 +722,11 @@ class ContactApp(MDApp):
     def _make_field_widget(self, fd, current=""):
         name  = fd["name"]
         ftype = fd["type"]
-        req   = ar(" (مطلوب)") if fd.get("required") else ""
+        req   = " (مطلوب)" if fd.get("required") else ""  # خام — ar() يُطبَّق لاحقاً على النص كاملاً
 
         if ftype == "text":
             tf = MDTextField(
-                hint_text=name + req,   # عربي خام بدون ar() — يتعامل معه base_direction="rtl"
+                hint_text=ar(name + req),  # ar() مطلوب — base_direction لا يعمل مع SDL2
                 mode="rectangle",
                 text=current or "",
                 halign="right",
