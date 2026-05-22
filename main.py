@@ -62,17 +62,8 @@ def _font_path(name):
             return p
     return None
 
-_AMIRI   = _font_path("Amiri-Regular.ttf")
-_CAIRO   = _font_path("Cairo-Bold.ttf")
-_PRIMARY = _AMIRI or _CAIRO   # Amiri له أولوية (تغطية كاملة لـ Presentation Forms)
-
-try:
-    if _PRIMARY:
-        pass  # sentinel — يُبقي الكتلة صالحة نحوياً
-        LabelBase.register(name="Roboto",  fn_regular=_PRIMARY, fn_bold=_PRIMARY)
-        LabelBase.register(name="ArabicF", fn_regular=_PRIMARY, fn_bold=_PRIMARY)
-except Exception:
-    pass
+# تسجيل الخطوط يحدث داخل build() بعد تهيئة التطبيق للتوافق مع Android
+# Font registration happens inside build() after app init — Android-safe
 
 # ══════════════════════════════════════════════════════════════════
 #  Kivy / KivyMD imports  ─  بعد تسجيل الخط
@@ -419,9 +410,39 @@ class ContactApp(MDApp):
     def build(self):
         self.theme_cls.primary_palette = "Teal"
         self.theme_cls.theme_style     = "Light"
-        # ← النقطة المحورية: تُعاد صياغة كل النصوص العربية في KV
-        #   قبل تحميلها، فتظهر الحروف متصلة من اللحظة الأولى.
+        # ← تسجيل الخطوط هنا بعد تهيئة self.directory (يعمل بشكل صحيح على Android)
+        self._register_arabic_fonts()
+        # ← تُعاد صياغة كل النصوص العربية في KV قبل تحميلها
         return Builder.load_string(_ar_in_kv(KV))
+
+    def _register_arabic_fonts(self):
+        """
+        يسجّل الخطوط العربية بعد تهيئة التطبيق كاملاً.
+        يستخدم self.directory لإيجاد الخطوط بشكل موثوق على Android و Desktop.
+        """
+        from kivy.resources import resource_add_path, resource_find
+        # أضف مجلد التطبيق لمسارات Kivy حتى تجد resource_find الخطوط
+        resource_add_path(self.directory)
+        font_registered = False
+        for font_file in ["Amiri-Regular.ttf", "Cairo-Bold.ttf"]:
+            # حاول أولاً عبر resource_find
+            path = resource_find(font_file)
+            # بديل مباشر: ابحث في مجلد التطبيق
+            if not path:
+                candidate = os.path.join(self.directory, font_file)
+                if os.path.exists(candidate):
+                    path = candidate
+            if path:
+                try:
+                    LabelBase.register(name="Roboto",  fn_regular=path, fn_bold=path)
+                    LabelBase.register(name="ArabicF", fn_regular=path, fn_bold=path)
+                    print(f"[Font] Arabic font registered: {path}")
+                    font_registered = True
+                    break  # Amiri له الأولوية — نتوقف عند أول خط يُوجد
+                except Exception as e:
+                    print(f"[Font] Failed to register {font_file}: {e}")
+        if not font_registered:
+            print(f"[Font] WARNING: No Arabic font found in {self.directory}")
 
     def on_start(self):
         self._load_config()
@@ -783,21 +804,28 @@ class ContactApp(MDApp):
     # ── Delete ─────────────────────────────────────────────────
     def _confirm_delete(self, idx):
         btn_cancel = MDFlatButton(text=ar("إلغاء"))
-        btn_del    = MDRaisedButton(text=ar("حذف"), md_bg_color="red")
+        btn_del    = MDRaisedButton(text=ar("حذف"), md_bg_color=[1, 0, 0, 1])
         d = self._dlg(ar("تأكيد الحذف"),
                       ar("هل أنت متأكد من حذف هذا السجل؟"),
                       [btn_cancel, btn_del])
         btn_cancel.bind(on_release=lambda x: d.dismiss())
+        # نحفظ مرجعاً للسجل نفسه (وليس الـ index) لتفادي حذف سجل خاطئ
+        # إذا تغيّر ترتيب السجلات بسبب auto-sync أثناء ظهور نافذة التأكيد
+        rec_to_delete = self.records[idx]
         def _do(x):
             d.dismiss()
             def _bg():
                 ok, msg = self.ftp.test()
                 if not ok:
                     Clock.schedule_once(lambda dt: self._no_ftp_dlg(msg), 0); return
-                self.records.pop(idx); self._dirty = True
-                self.ftp.write_csv(self.records, self._field_names()); self._dirty = False
-                Clock.schedule_once(lambda dt: (
-                    self._snack("تم الحذف"), self._refresh_list()), 0)
+                # احذف بالمرجع وليس بالـ index لتجنب حذف السجل الخاطئ
+                if rec_to_delete in self.records:
+                    self.records.remove(rec_to_delete); self._dirty = True
+                    self.ftp.write_csv(self.records, self._field_names()); self._dirty = False
+                    Clock.schedule_once(lambda dt: (
+                        self._snack("تم الحذف"), self._refresh_list()), 0)
+                else:
+                    Clock.schedule_once(lambda dt: self._snack("السجل لم يُوجد — ربما حُدِّث"), 0)
             threading.Thread(target=_bg, daemon=True).start()
         btn_del.bind(on_release=_do)
 
