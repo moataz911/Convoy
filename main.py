@@ -82,6 +82,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.chip import MDChip
+from kivymd.uix.menu import MDDropdownMenu
 
 # ══════════════════════════════════════════════════════════════════
 #  Screen classes
@@ -305,10 +306,11 @@ ScreenManager:
                     hint_text: "اسم الحقل الجديد"
                     size_hint_x: 0.5
                     halign: "right"
-                MDTextField:
-                    id: field_type_input
-                    hint_text: "text / checkbox / multiselect"
+                MDRaisedButton:
+                    id: field_type_btn
+                    text: "text"
                     size_hint_x: 0.5
+                    on_release: app.open_field_type_menu(self)
             MDBoxLayout:
                 adaptive_height: True
                 spacing: dp(6)
@@ -486,6 +488,54 @@ class ContactApp(MDApp):
                 tf.base_direction  = "rtl"
             except Exception as e:
                 print(f"[RTL] {field_id}: {e}")
+
+    # ── Field type dropdown ──────────────────────────────────
+    def open_field_type_menu(self, caller):
+        """يفتح قائمة منسدلة لاختيار نوع الحقل"""
+        if getattr(self, '_active_type_menu', None):
+            try:
+                self._active_type_menu.dismiss()
+            except Exception:
+                pass
+        items = [
+            {
+                "text": ar("نصي  —  text"),
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x="text", b=caller: self._select_field_type(x, b),
+            },
+            {
+                "text": ar("اختيار  —  checkbox"),
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x="checkbox", b=caller: self._select_field_type(x, b),
+            },
+            {
+                "text": ar("قائمة متعددة  —  multiselect"),
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x="multiselect", b=caller: self._select_field_type(x, b),
+            },
+        ]
+        self._active_type_menu = MDDropdownMenu(
+            caller=caller,
+            items=items,
+            width_mult=4,
+        )
+        self._active_type_menu.open()
+
+    def _select_field_type(self, ftype, btn):
+        """يحفظ النوع المختار ويحدّث نص الزر"""
+        btn._field_type_value = ftype
+        labels = {
+            "text":        ar("نصي"),
+            "checkbox":    ar("اختيار"),
+            "multiselect": ar("قائمة متعددة"),
+        }
+        btn.text = labels.get(ftype, ftype)
+        if getattr(self, '_active_type_menu', None):
+            try:
+                self._active_type_menu.dismiss()
+            except Exception:
+                pass
+        self._active_type_menu = None
 
     # ── app.ar() متاح من KV إن احتاجه أحد ────────────────────
     def ar(self, text):
@@ -917,7 +967,7 @@ class ContactApp(MDApp):
     def add_field(self):
         ids         = self.root.get_screen("fields").ids
         name        = ids.new_field_input.text.strip()
-        ftype       = ids.field_type_input.text.strip().lower() or "text"
+        ftype       = getattr(ids.field_type_btn, '_field_type_value', 'text')
         opts_raw    = ids.field_options_input.text.strip()
         if not name:
             self._snack("أدخل اسم الحقل"); return
@@ -936,7 +986,8 @@ class ContactApp(MDApp):
         for r in self.records: r.setdefault(name, "")
         self._save_fields()
         ids.new_field_input.text     = ""
-        ids.field_type_input.text    = ""
+        ids.field_type_btn.text              = "text"
+        ids.field_type_btn._field_type_value = "text"
         ids.field_options_input.text = ""
         self._refresh_fields_ui()
 
