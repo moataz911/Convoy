@@ -730,15 +730,14 @@ class ContactApp(MDApp):
                 font_style="Caption", theme_text_color="Secondary",
                 adaptive_height=True, halign="right"))
 
-        row.add_widget(info)
-
         btns = MDBoxLayout(adaptive_size=True, spacing=dp(2))
         eb = MDIconButton(icon="pencil", theme_text_color="Primary")
         db = MDIconButton(icon="delete",  theme_text_color="Error")
         eb.bind(on_release=lambda x, idx=i: self.go_to_edit(idx))
         db.bind(on_release=lambda x, idx=i: self._confirm_delete(idx))
         btns.add_widget(eb); btns.add_widget(db)
-        row.add_widget(btns)
+        row.add_widget(btns)   # أزرار على اليسار (تخطيط RTL)
+        row.add_widget(info)   # معلومات على اليمين (تخطيط RTL)
         box.add_widget(row)
 
         # chips للحقول متعددة الاختيار
@@ -778,11 +777,44 @@ class ContactApp(MDApp):
             tf = MDTextField(
                 hint_text=ar(name + req),  # ar() مطلوب — base_direction لا يعمل مع SDL2
                 mode="rectangle",
-                text=current or "",
+                text="",
                 halign="right",
             )
-            tf.field_type = "text"
-            # نؤخّر base_direction إلى الـ frame التالي حتى تكتمل تهيئة الـ widget
+            tf.field_type  = "text"
+            tf._raw_value  = current or ""
+            tf._ar_syncing = False
+
+            def _on_text(inst, val, w=tf):
+                # تتبّع النص الخام الذي يكتبه المستخدم
+                if not w._ar_syncing:
+                    w._raw_value = val
+
+            def _on_focus(inst, focused, w=tf):
+                if focused:
+                    # عند التحرير: أظهر النص الخام ليتمكن من التعديل
+                    if w._raw_value != w.text:
+                        w._ar_syncing = True
+                        w.text = w._raw_value
+                        w._ar_syncing = False
+                else:
+                    # عند المغادرة: طبّق ar() للعرض الصحيح
+                    raw = w._raw_value
+                    display = ar(raw) if raw else ""
+                    if display != w.text:
+                        w._ar_syncing = True
+                        w.text = display
+                        w._ar_syncing = False
+
+            tf.bind(text=_on_text, focus=_on_focus)
+
+            # عرض ar() مبدئياً إن كان هناك نص محفوظ (وضع التعديل)
+            if current:
+                def _init_display(dt, w=tf, c=current):
+                    w._ar_syncing = True
+                    w.text = ar(c)
+                    w._ar_syncing = False
+                Clock.schedule_once(_init_display, 0)
+
             Clock.schedule_once(lambda dt, w=tf: setattr(w, "base_direction", "rtl"), 0)
             return tf
 
@@ -824,7 +856,7 @@ class ContactApp(MDApp):
 
     def _read_val(self, w):
         ft = getattr(w, "field_type", None)
-        if ft == "text":        return w.text.strip()
+        if ft == "text":        return getattr(w, "_raw_value", w.text).strip()
         if ft == "checkbox":    return "true" if w.checkbox.active else "false"
         if ft == "multiselect": return serialize_multi(
             [o for o, cb in w.cb_map.items() if cb.active])
