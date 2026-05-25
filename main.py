@@ -485,7 +485,6 @@ class ContactApp(MDApp):
                 tf = self.root.get_screen(screen_name).ids[field_id]
                 tf.hint_text       = ar(raw_hint)  # ar() مطلوب — base_direction لا يعمل مع SDL2
                 tf.halign          = "right"
-                tf.base_direction  = "rtl"
             except Exception as e:
                 print(f"[RTL] {field_id}: {e}")
 
@@ -815,7 +814,6 @@ class ContactApp(MDApp):
                     w._ar_syncing = False
                 Clock.schedule_once(_init_display, 0)
 
-            Clock.schedule_once(lambda dt, w=tf: setattr(w, "base_direction", "rtl"), 0)
             return tf
 
         if ftype == "checkbox":
