@@ -30,7 +30,10 @@ def ar(text: str) -> str:
     if not _ARABIC_OK:
         return text
     try:
-        return arabic_reshaper.reshape(text)  # SDL2_ttf handles BiDi
+        shaped    = arabic_reshaper.reshape(text)
+        bidi_text = _bidi(shaped)
+        # U+202D (LRO) forces SDL2_ttf to render LTR, preventing double-reversal
+        return "\u202D" + bidi_text + "\u202C"
     except Exception:
         return text
 
