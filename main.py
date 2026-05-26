@@ -30,7 +30,7 @@ def ar(text: str) -> str:
     if not _ARABIC_OK:
         return text
     try:
-        return _bidi(arabic_reshaper.reshape(text))
+        return arabic_reshaper.reshape(text)  # SDL2_ttf handles BiDi
     except Exception:
         return text
 
