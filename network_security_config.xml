@@ -1,16 +1,10 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- السماح بجميع اتصالات النص الواضح (Cleartext) بشكل افتراضي لجميع النطاقات -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
     </base-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">192.168.1.5</domain>
-        <domain includeSubdomains="true">192.168.1.1</domain>
-        <domain includeSubdomains="true">mediarouter</domain>
-        <domain includeSubdomains="true">mediarouter.home</domain>
-        <!-- إضافة نطاق عام للسماح بالاتصال بأي عنوان IP محلي أو ثابت -->
-        <domain includeSubdomains="true">*</domain>
-    </domain-config>
 </network-security-config>
