@@ -17,7 +17,7 @@ fullscreen = 0
 presplash.color = #009688
 
 [android]
-
+android.add_assets = network_security_config.xml:res/xml/network_security_config.xml
 android.permissions = INTERNET,ACCESS_NETWORK_STATE,CHANGE_NETWORK_STATE,ACCESS_WIFI_STATE,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 
 android.api = 33
