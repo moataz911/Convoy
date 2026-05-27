@@ -31,6 +31,7 @@ android.archs = arm64-v8a, armeabi-v7a
 p4a.bootstrap = sdl2
 p4a.branch = master
 android.enable_androidx = True
+android.extra_manifest_application_arguments = android:usesCleartextTraffic="true"
 
 [buildozer]
 
