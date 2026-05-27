@@ -1001,7 +1001,7 @@ class ContactApp(App):
                 self.storage_label.text = ar(self.get_storage_info())
                 self.update_storage_buttons()
                 
-                self.status_label.text = ar("✓ تم تفعيل تخزين FTP")
+                self.status_label.text == ar("✓ تم تفعيل تخزين FTP")
                 popup.dismiss()
             except Exception as e:
                 print(f"Activate FTP error: {e}")
@@ -1035,7 +1035,7 @@ class ContactApp(App):
 
             except Exception as e:
                 print(f"Test FTP error: {e}")
-                self.status_label.text = ar(f"خطأ في اختبار FTP: {e}")
+                self.status_label.text == ar(f"خطأ في اختبار FTP: {e}")
         
         activate_btn.bind(on_press=activate_ftp)
         test_btn.bind(on_press=test_ftp)
