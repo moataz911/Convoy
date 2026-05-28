@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """
 FTP Contact Manager — Arabic Edition
 تسجيل قوافل مرسال — نظام إدارة السجلات عبر FTP
