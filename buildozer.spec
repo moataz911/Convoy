@@ -1,40 +1,35 @@
-
 [app]
-
-title = تسجيل قوافل مرسال
-package.name = ftpcontactmanager
-package.domain = org.ftpcontacts
-
+title = Mersal Convoys
+package.name = mersalconvoys
+package.domain = com.mersal
 source.dir = .
-source.include_exts = py,png,jpg,jpeg,kv,atlas,json,ttf,csv,txt,xml
-source.include_patterns = Amiri-Regular.ttf,Cairo-Bold.ttf,network_security_config.xml
-
+source.main = main.py
+source.include_exts = py,png,jpg,kv,atlas,ttf,json
+source.exclude_exts = spec,pyc,pyo
+source.exclude_dirs = tests,bin,venv,.buildozer,__pycache__,.git
 version = 1.0
-
-requirements = python3,kivy==2.3.1,kivymd==1.2.0,arabic-reshaper,python-bidi
-
 orientation = portrait
-fullscreen = 0
-presplash.color = #009688
+android.allow_backup = True
+# icon.filename = %(source.dir)s/icon.png
+# presplash.filename = %(source.dir)s/presplash.png
 
-[android]
-android.add_assets = network_security_config.xml:res/xml/network_security_config.xml
-android.permissions = INTERNET,ACCESS_NETWORK_STATE,CHANGE_NETWORK_STATE,ACCESS_WIFI_STATE,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+requirements = python3,kivy==2.3.1,kivymd==1.2.0,pillow,materialyoucolor,exceptiongroup,requests
 
-android.api = 33
-android.minapi = 21
+android.api = 34
+android.minapi = 24
+android.sdk = 34
 android.ndk = 25b
-android.ndk_api = 21
-android.accept_sdk_license = True
+android.ndk_api = 24
 android.archs = arm64-v8a, armeabi-v7a
-p4a.bootstrap = sdl2
-p4a.branch = master
-android.enable_androidx = True
+android.accept_sdk_license = True
 
-# ط§ظ„ط³ظ…ط§ط­ ط¨ظ€ FTP (cleartext) + network security config
-android.extra_manifest_application_arguments = android:usesCleartextTraffic="true" android:networkSecurityConfig="@xml/network_security_config"
+android.permissions = INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
+
+android.extra_manifest_xml = \
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
+
+p4a.branch = master
 
 [buildozer]
-
 log_level = 2
 warn_on_root = 1
