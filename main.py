@@ -1084,7 +1084,8 @@ class ContactApp(MDApp):
     def _make_field_widget(self, fd, current=""):
         name  = fd["name"]
         ftype = fd["type"]
-        req   = " (مطلوب)" if fd.get("required") else ""  # خام — ar() يُطبَّق لاحقاً على النص كاملاً        if ftype == "text":
+        req   = " (مطلوب)" if fd.get("required") else ""  # خام — ar() يُطبَّق لاحقاً على النص كاملاً
+        if ftype == "text":
             if fd.get("input_type") == "number":
                 # ── حقل أرقام: textfield بسيط ────────────────────────
                 tf = MDTextField(
