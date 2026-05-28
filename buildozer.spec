@@ -1,7 +1,7 @@
 [app]
-title = Mersal Convoys
-package.name = mersalconvoys
-package.domain = com.mersal
+title = Marsal Convoys
+package.name = marsalconvoys
+package.domain = com.marsal
 source.dir = .
 source.main = main.py
 source.include_exts = py,png,jpg,kv,atlas,ttf,json
