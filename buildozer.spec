@@ -1,5 +1,5 @@
 [app]
-title = Mersal Convoys
+title = Mersal Convoys (cordination)
 package.name = mersalconvoys
 package.domain = com.mersal
 source.dir = .
