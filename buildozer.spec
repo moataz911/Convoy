@@ -11,7 +11,7 @@ version = 1.0
 orientation = portrait
 android.allow_backup = True
 
-requirements = python3,kivy==2.3.1,kivymd==1.2.0,pillow,materialyoucolor,exceptiongroup,requests
+requirements = python3,kivy==2.3.1,kivymd==1.2.0,pillow,materialyoucolor,exceptiongroup,requests,plyer
 
 android.api = 34
 android.minapi = 24
@@ -21,7 +21,7 @@ android.ndk_api = 24
 android.archs = arm64-v8a, armeabi-v7a
 android.accept_sdk_license = True
 
-android.permissions = INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
+android.permissions = INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE,VIBRATE,POST_NOTIFICATIONS
 
 p4a.branch = master
 
